@@ -21,7 +21,7 @@
 #include <stdint.h>
 
 #define SCREEN_WIDTH_BLOCK_CNT (64U)
-#define SCREEN_HEIGHT_BLOCK_CNT (128U)
+#define SCREEN_HEIGHT_BLOCK_CNT (64U)
 #define BLOCK_SIZE (8U)
 #define SCREEN_WIDTH (BLOCK_SIZE * SCREEN_WIDTH_BLOCK_CNT)
 #define SCREEN_HEIGHT (BLOCK_SIZE * SCREEN_HEIGHT_BLOCK_CNT)
@@ -35,7 +35,7 @@ static void GridDraw(void);
 static void SandSimulationStep(void);
 
 static uint16_t grid[SCREEN_WIDTH_BLOCK_CNT][SCREEN_HEIGHT_BLOCK_CNT];
-static uint16_t hueValue = 0U;
+static uint16_t hue;
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -50,16 +50,15 @@ int main(void) {
   //--------------------------------------------------------------------------------------
   Vector2 mousePosition = {-100.0f, 100.0f};
   // auto simulationTimerMs = std::chrono::high_resolution_clock::now();
-  float hueSpeed = 100.0f;
-
+  float hueChangeSpeed = 100.0f;
   hueColorChangeState hueChState = UP;
+
   // Main game loop
   while (!WindowShouldClose()) // Detect window close button or ESC key
   {
     // Update
     //----------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------
-
     mousePosition = GetMousePosition();
 
     // Draw
@@ -72,15 +71,15 @@ int main(void) {
     //
     switch (hueChState) {
     case UP:
-      hueValue += static_cast<uint16_t>(hueSpeed * GetFrameTime());
-      if (hueValue >= 360U) {
+      hue += static_cast<uint16_t>(hueChangeSpeed * GetFrameTime());
+      if (hue >= 360U) {
         hueChState = DOWN;
       }
       break;
 
     case DOWN:
-      hueValue -= static_cast<uint16_t>(hueSpeed * GetFrameTime());
-      if (hueValue <= 0U) {
+      hue -= static_cast<uint16_t>(hueChangeSpeed * GetFrameTime());
+      if (hue <= 0U) {
         hueChState = UP;
       }
       break;
@@ -93,16 +92,16 @@ int main(void) {
       uint32_t x = (uint32_t)mousePosition.x / BLOCK_SIZE;
       uint32_t y = (uint32_t)mousePosition.y / BLOCK_SIZE;
 
-      grid[x][y] = hueValue;
+      grid[x][y] = hue;
       if (x - 1 >= 0) {
-        grid[x - 1][y] = hueValue;
+        grid[x - 1][y] = hue;
       } else if (x + 1 < SCREEN_WIDTH_BLOCK_CNT) {
-        grid[x + 1][y] = hueValue;
+        grid[x + 1][y] = hue;
       }
       if (y + 1 < SCREEN_HEIGHT_BLOCK_CNT) {
-        grid[x][y + 1] = hueValue;
+        grid[x][y + 1] = hue;
       } else if (y - 1 >= 0) {
-        grid[x][y - 1] = hueValue;
+        grid[x][y - 1] = hue;
       }
     }
 
